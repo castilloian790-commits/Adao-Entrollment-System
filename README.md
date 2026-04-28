@@ -52,5 +52,5 @@ The program seeds sample data on startup so all features can be exercised immedi
 - **Git Mastery** — Feature-branch workflow with descriptive Pull Requests for every feature. Conventional, imperative-mood commit messages throughout the project history.
 
 ## Author
-[Your Full Name]
+Adao, Ian
 De La Salle Lipa — BS Information Technology
