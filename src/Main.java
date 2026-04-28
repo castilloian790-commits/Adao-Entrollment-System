@@ -143,7 +143,82 @@ public class Main {
         }
     }
     private static void instructorMenu() {
-        System.out.println("Instructor menu — not yet implemented");
+        while (true) {
+            System.out.println();
+            System.out.println("--- Instructor Management ---");
+            System.out.println("[1] Add Instructor");
+            System.out.println("[2] Display All Instructors");
+            System.out.println("[3] Update Instructor");
+            System.out.println("[4] Remove Instructor");
+            System.out.println("[5] Get Instructor Details");
+            System.out.println("[6] Assign Instructor to Section");
+            System.out.println("[0] Back to Main Menu");
+            String choice = readString("Choice: ");
+
+            switch (choice) {
+                case "1":
+                    String id = readString("Enter Instructor ID: ");
+                    String name = readString("Enter Instructor Name: ");
+                    String department = readString("Enter Department: ");
+                    instructorService.addInstructor(new Instructor(id, name, department));
+                    System.out.println("Instructor added.");
+                    break;
+                case "2":
+                    ArrayList<Instructor> instructors = instructorService.getAllInstructors();
+                    if (instructors.isEmpty()) {
+                        System.out.println("No instructors in the system.");
+                    } else {
+                        for (Instructor i : instructors) {
+                            System.out.println("Instructor ID: " + i.getPersonId()
+                                    + " | Name: " + i.getPersonName()
+                                    + " | Department: " + i.getDepartment());
+                        }
+                    }
+                    break;
+                case "3":
+                    String updateId = readString("Enter Instructor ID to update: ");
+                    String newName = readString("Enter New Name: ");
+                    String newDept = readString("Enter New Department: ");
+                    instructorService.updateInstructor(updateId, new Instructor(updateId, newName, newDept));
+                    System.out.println("Instructor updated.");
+                    break;
+                case "4":
+                    String removeId = readString("Enter Instructor ID to remove: ");
+                    instructorService.removeInstructor(removeId);
+                    System.out.println("Instructor removed.");
+                    break;
+                case "5":
+                    String detailId = readString("Enter Instructor ID: ");
+                    Instructor found = instructorService.getInstructorDetails(detailId);
+                    if (found == null) {
+                        System.out.println("Instructor not found.");
+                    } else {
+                        System.out.println("Instructor ID: " + found.getPersonId());
+                        System.out.println("Name: " + found.getPersonName());
+                        System.out.println("Department: " + found.getDepartment());
+                        System.out.println("Main Task: " + found.mainTask());
+                    }
+                    break;
+                case "6":
+                    String instId = readString("Enter Instructor ID: ");
+                    Instructor inst = instructorService.getInstructorDetails(instId);
+                    if (inst == null) {
+                        System.out.println("Instructor not found.");
+                        break;
+                    }
+                    Section sec = pickSection();
+                    if (sec == null) {
+                        break;
+                    }
+                    instructorService.assignInstructorToSection(inst, sec);
+                    System.out.println("Assigned " + inst.getPersonName() + " to " + sec.getSectionName() + ".");
+                    break;
+                case "0":
+                    return;
+                default:
+                    System.out.println("Invalid choice.");
+            }
+        }
     }
 
     private static void courseMenu() {
@@ -201,7 +276,58 @@ public class Main {
     }
 
     private static void departmentMenu() {
-        System.out.println("Department & Section menu — not yet implemented");
+        while (true) {
+            System.out.println();
+            System.out.println("--- Department & Section Management ---");
+            System.out.println("[1] Add Department");
+            System.out.println("[2] Display All Departments");
+            System.out.println("[3] Add Section to a Department");
+            System.out.println("[4] Display Sections of a Department");
+            System.out.println("[0] Back to Main Menu");
+            String choice = readString("Choice: ");
+
+            switch (choice) {
+                case "1":
+                    String deptName = readString("Enter Department Name: ");
+                    departmentList.add(new Department(deptName));
+                    System.out.println("Department added.");
+                    break;
+                case "2":
+                    if (departmentList.isEmpty()) {
+                        System.out.println("No departments in the system.");
+                    } else {
+                        for (Department d : departmentList) {
+                            System.out.println("- " + d.getDepartmentName()
+                                    + " (" + d.getSections().size() + " section(s))");
+                        }
+                    }
+                    break;
+                case "3":
+                    Department dept = pickDepartment();
+                    if (dept == null) break;
+                    String secName = readString("Enter Section Name (e.g., BSIT-1A): ");
+                    int capacity = readInt("Enter Max Capacity: ");
+                    dept.getSections().add(new Section(secName, capacity));
+                    System.out.println("Section added to " + dept.getDepartmentName() + ".");
+                    break;
+                case "4":
+                    Department dept2 = pickDepartment();
+                    if (dept2 == null) break;
+                    if (dept2.getSections().isEmpty()) {
+                        System.out.println("No sections in " + dept2.getDepartmentName() + ".");
+                    } else {
+                        for (Section s : dept2.getSections()) {
+                            System.out.println("- " + s.getSectionName()
+                                    + " (" + s.getEnrolledStudents().size() + "/" + s.getMaxCapacity() + ")");
+                        }
+                    }
+                    break;
+                case "0":
+                    return;
+                default:
+                    System.out.println("Invalid choice.");
+            }
+        }
     }
 
     private static void enrollmentMenu() {
@@ -216,6 +342,46 @@ public class Main {
         System.out.println("Hierarchy menu — not yet implemented");
     }
 
+    // Selection helpers
+    private static Department pickDepartment() {
+        if (departmentList.isEmpty()) {
+            System.out.println("No departments exist yet.");
+            return null;
+        }
+        System.out.println("Departments:");
+        for (int i = 0; i < departmentList.size(); i++) {
+            System.out.println("[" + (i + 1) + "] " + departmentList.get(i).getDepartmentName());
+        }
+        int idx = readInt("Pick department number: ") - 1;
+        if (idx < 0 || idx >= departmentList.size()) {
+            System.out.println("Invalid department number.");
+            return null;
+        }
+        return departmentList.get(idx);
+    }
+
+    private static Section pickSection() {
+        ArrayList<Section> allSections = new ArrayList<>();
+        for (Department d : departmentList) {
+            allSections.addAll(d.getSections());
+        }
+        if (allSections.isEmpty()) {
+            System.out.println("No sections exist in any department yet.");
+            return null;
+        }
+        System.out.println("Available sections:");
+        for (int i = 0; i < allSections.size(); i++) {
+            Section s = allSections.get(i);
+            System.out.println("[" + (i + 1) + "] " + s.getSectionName()
+                    + " (" + s.getEnrolledStudents().size() + "/" + s.getMaxCapacity() + ")");
+        }
+        int idx = readInt("Pick section number: ") - 1;
+        if (idx < 0 || idx >= allSections.size()) {
+            System.out.println("Invalid section number.");
+            return null;
+        }
+        return allSections.get(idx);
+    }
     // Input helpers
     private static String readString(String prompt) {
         System.out.print(prompt);
