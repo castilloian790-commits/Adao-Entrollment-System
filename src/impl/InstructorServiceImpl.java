@@ -5,7 +5,7 @@ import entities.Section;
 import services.IInstructorService;
 
 import java.util.ArrayList;
-
+import exceptions.DuplicateIdException;
 public class InstructorServiceImpl implements IInstructorService {
     private ArrayList<Instructor> instructorList;
 
@@ -14,10 +14,16 @@ public class InstructorServiceImpl implements IInstructorService {
     }
 
     @Override
-    public void addInstructor(Instructor instructor) {
+    public void addInstructor(Instructor instructor) throws DuplicateIdException {
+        for (Instructor existing : instructorList) {
+            if (existing.getPersonId().equals(instructor.getPersonId())) {
+                throw new DuplicateIdException(
+                        "Cannot add instructor: ID '" + instructor.getPersonId() + "' already exists."
+                );
+            }
+        }
         instructorList.add(instructor);
     }
-
     @Override
     public void updateInstructor(String instructorId, Instructor updatedInstructor) {
         for (int i = 0; i < instructorList.size(); i++) {
