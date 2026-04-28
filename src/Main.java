@@ -331,15 +331,116 @@ public class Main {
     }
 
     private static void enrollmentMenu() {
-        System.out.println("Enrollment menu — not yet implemented");
+        while (true) {
+            System.out.println();
+            System.out.println("--- Enrollment ---");
+            System.out.println("[1] Enroll Student in Section");
+            System.out.println("[0] Back to Main Menu");
+            String choice = readString("Choice: ");
+
+            switch (choice) {
+                case "1":
+                    Student student = pickStudent();
+                    if (student == null) break;
+                    Section section = pickSection();
+                    if (section == null) break;
+                    try {
+                        enrollmentService.enrollStudentInSection(student, section);
+                        System.out.println("Success! " + student.getPersonName()
+                                + " enrolled in " + section.getSectionName() + ".");
+                    } catch (SectionFullException e) {
+                        System.out.println("ERROR: " + e.getMessage());
+                    }
+                    break;
+                case "0":
+                    return;
+                default:
+                    System.out.println("Invalid choice.");
+            }
+        }
     }
 
     private static void tuitionMenu() {
-        System.out.println("Tuition menu — not yet implemented");
+        while (true) {
+            System.out.println();
+            System.out.println("--- Tuition Fee Management ---");
+            System.out.println("[1] Calculate Tuition Fee");
+            System.out.println("[2] Make Payment");
+            System.out.println("[3] View Remaining Balance");
+            System.out.println("[4] Check Fully Paid Status");
+            System.out.println("[0] Back to Main Menu");
+            String choice = readString("Choice: ");
+
+            switch (choice) {
+                case "1": {
+                    Student student = pickStudent();
+                    if (student == null) break;
+                    int units = readInt("Enter number of units: ");
+                    double discount = readDouble("Enter discount rate (e.g. 0.10 for 10%, or 0 for none): ");
+
+                    TuitionFeePayment payment = tuitionRecords.get(student.getPersonId());
+                    if (payment == null) {
+                        payment = new TuitionFeePayment(student.getPersonId());
+                        tuitionRecords.put(student.getPersonId(), payment);
+                    }
+                    double total = tuitionService.calculateFee(payment, units, discount);
+                    System.out.println("Tuition calculated for " + student.getPersonName() + ": Php " + total);
+                    break;
+                }
+                case "2": {
+                    Student student = pickStudent();
+                    if (student == null) break;
+                    TuitionFeePayment payment = tuitionRecords.get(student.getPersonId());
+                    if (payment == null) {
+                        System.out.println("No tuition record yet. Calculate the fee first.");
+                        break;
+                    }
+                    double amount = readDouble("Enter payment amount: ");
+                    tuitionService.makePayment(payment, amount);
+                    System.out.println("Payment of Php " + amount + " recorded.");
+                    System.out.println("Remaining balance: Php " + tuitionService.getRemainingBalance(payment));
+                    break;
+                }
+                case "3": {
+                    Student student = pickStudent();
+                    if (student == null) break;
+                    TuitionFeePayment payment = tuitionRecords.get(student.getPersonId());
+                    if (payment == null) {
+                        System.out.println("No tuition record found.");
+                        break;
+                    }
+                    System.out.println("Total Tuition: Php " + payment.getTotalTuition());
+                    System.out.println("Remaining Balance: Php " + tuitionService.getRemainingBalance(payment));
+                    break;
+                }
+                case "4": {
+                    Student student = pickStudent();
+                    if (student == null) break;
+                    TuitionFeePayment payment = tuitionRecords.get(student.getPersonId());
+                    if (payment == null) {
+                        System.out.println("No tuition record found.");
+                        break;
+                    }
+                    if (tuitionService.isFullyPaid(payment)) {
+                        System.out.println(student.getPersonName() + " is fully paid.");
+                    } else {
+                        System.out.println(student.getPersonName() + " still owes Php "
+                                + tuitionService.getRemainingBalance(payment));
+                    }
+                    break;
+                }
+                case "0":
+                    return;
+                default:
+                    System.out.println("Invalid choice.");
+            }
+        }
     }
 
     private static void hierarchyMenu() {
-        System.out.println("Hierarchy menu — not yet implemented");
+        Department dept = pickDepartment();
+        if (dept == null) return;
+        enrollmentService.viewDepartmentHierarchy(dept);
     }
 
     // Selection helpers
@@ -358,6 +459,26 @@ public class Main {
             return null;
         }
         return departmentList.get(idx);
+    }
+    private static Student pickStudent() {
+        ArrayList<Student> students = studentService.getAllStudents();
+        if (students.isEmpty()) {
+            System.out.println("No students in the system.");
+            return null;
+        }
+        System.out.println("Students:");
+        for (int i = 0; i < students.size(); i++) {
+            Student s = students.get(i);
+            System.out.println("[" + (i + 1) + "] " + s.getPersonId()
+                    + " - " + s.getPersonName()
+                    + " (" + s.getProgram() + ")");
+        }
+        int idx = readInt("Pick student number: ") - 1;
+        if (idx < 0 || idx >= students.size()) {
+            System.out.println("Invalid student number.");
+            return null;
+        }
+        return students.get(idx);
     }
 
     private static Section pickSection() {
@@ -382,6 +503,8 @@ public class Main {
         }
         return allSections.get(idx);
     }
+
+
     // Input helpers
     private static String readString(String prompt) {
         System.out.print(prompt);
