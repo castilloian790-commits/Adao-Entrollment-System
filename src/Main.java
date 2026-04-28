@@ -506,18 +506,33 @@ public class Main {
 
 
     // Input helpers
+
     private static String readString(String prompt) {
         System.out.print(prompt);
         return scanner.nextLine();
     }
 
     private static int readInt(String prompt) {
-        System.out.print(prompt);
-        return Integer.parseInt(scanner.nextLine());
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine();
+            try {
+                return Integer.parseInt(input);
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid number. Please enter an integer.");
+            }
+        }
     }
 
     private static double readDouble(String prompt) {
-        System.out.print(prompt);
-        return Double.parseDouble(scanner.nextLine());
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine();
+            try {
+                return Double.parseDouble(input);
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid number. Please enter a decimal value.");
+            }
+        }
     }
 }
