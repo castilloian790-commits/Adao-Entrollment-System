@@ -93,15 +93,111 @@ public class Main {
 
     // Placeholder sub-menus — filled in over the next parts
     private static void studentMenu() {
-        System.out.println("Student menu — not yet implemented");
-    }
+        while (true) {
+            System.out.println();
+            System.out.println("--- Student Management ---");
+            System.out.println("[1] Add Student");
+            System.out.println("[2] Display All Students");
+            System.out.println("[3] Update Student");
+            System.out.println("[4] Remove Student");
+            System.out.println("[0] Back to Main Menu");
+            String choice = readString("Choice: ");
 
+            switch (choice) {
+                case "1":
+                    String id = readString("Enter Student ID: ");
+                    String name = readString("Enter Student Name: ");
+                    String program = readString("Enter Program: ");
+                    studentService.addStudent(new Student(id, name, program));
+                    System.out.println("Student added.");
+                    break;
+                case "2":
+                    ArrayList<Student> students = studentService.getAllStudents();
+                    if (students.isEmpty()) {
+                        System.out.println("No students in the system.");
+                    } else {
+                        for (Student s : students) {
+                            System.out.println("Student ID: " + s.getPersonId()
+                                    + " | Name: " + s.getPersonName()
+                                    + " | Program: " + s.getProgram());
+                        }
+                    }
+                    break;
+                case "3":
+                    String updateId = readString("Enter Student ID to update: ");
+                    String newName = readString("Enter New Name: ");
+                    String newProgram = readString("Enter New Program: ");
+                    studentService.updateStudent(updateId, new Student(updateId, newName, newProgram));
+                    System.out.println("Student updated.");
+                    break;
+                case "4":
+                    String removeId = readString("Enter Student ID to remove: ");
+                    studentService.removeStudent(removeId);
+                    System.out.println("Student removed.");
+                    break;
+                case "0":
+                    return;
+                default:
+                    System.out.println("Invalid choice.");
+            }
+        }
+    }
     private static void instructorMenu() {
         System.out.println("Instructor menu — not yet implemented");
     }
 
     private static void courseMenu() {
-        System.out.println("Course menu — not yet implemented");
+        while (true) {
+            System.out.println();
+            System.out.println("--- Course Management ---");
+            System.out.println("[1] Add Course");
+            System.out.println("[2] Display All Courses");
+            System.out.println("[3] Update Course");
+            System.out.println("[4] Remove Course");
+            System.out.println("[0] Back to Main Menu");
+            String choice = readString("Choice: ");
+
+            switch (choice) {
+                case "1":
+                    String id = readString("Enter Course ID: ");
+                    String name = readString("Enter Course Name: ");
+                    String program = readString("Enter Program: ");
+                    int units = readInt("Enter Units: ");
+                    courseService.addCourse(new Course(id, name, program, units));
+                    System.out.println("Course added.");
+                    break;
+                case "2":
+                    ArrayList<Course> courses = courseService.getAllCourses();
+                    if (courses.isEmpty()) {
+                        System.out.println("No courses in the system.");
+                    } else {
+                        for (Course c : courses) {
+                            System.out.println("Course ID: " + c.getCourseId()
+                                    + " | Name: " + c.getCourseName()
+                                    + " | Program: " + c.getProgram()
+                                    + " | Units: " + c.getUnits());
+                        }
+                    }
+                    break;
+                case "3":
+                    String updateId = readString("Enter Course ID to update: ");
+                    String newName = readString("Enter New Course Name: ");
+                    String newProgram = readString("Enter New Program: ");
+                    int newUnits = readInt("Enter New Units: ");
+                    courseService.updateCourse(updateId, new Course(updateId, newName, newProgram, newUnits));
+                    System.out.println("Course updated.");
+                    break;
+                case "4":
+                    String removeId = readString("Enter Course ID to remove: ");
+                    courseService.removeCourse(removeId);
+                    System.out.println("Course removed.");
+                    break;
+                case "0":
+                    return;
+                default:
+                    System.out.println("Invalid choice.");
+            }
+        }
     }
 
     private static void departmentMenu() {
