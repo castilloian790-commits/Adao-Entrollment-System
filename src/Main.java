@@ -19,7 +19,7 @@ import services.ITuitionService;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
-
+import exceptions.DuplicateIdException;
 public class Main {
     private static final IStudentService studentService = new StudentServiceImpl();
     private static final IInstructorService instructorService = new InstructorServiceImpl();
@@ -38,26 +38,30 @@ public class Main {
     }
 
     private static void seedSampleData() {
-        Department ccs = new Department("College of Computer Studies");
-        departmentList.add(ccs);
+        try {
+            Department ccs = new Department("College of Computer Studies");
+            departmentList.add(ccs);
 
-        Section bsit1A = new Section("BSIT-1A", 30);
-        Section bsit1B = new Section("BSIT-1B", 30);
-        ccs.getSections().add(bsit1A);
-        ccs.getSections().add(bsit1B);
+            Section bsit1A = new Section("BSIT-1A", 30);
+            Section bsit1B = new Section("BSIT-1B", 30);
+            ccs.getSections().add(bsit1A);
+            ccs.getSections().add(bsit1B);
 
-        courseService.addCourse(new Course("C001", "Integrative Programming", "Information Technology", 3));
-        courseService.addCourse(new Course("C002", "Data Structures", "Information Technology", 3));
-        courseService.addCourse(new Course("C003", "Web Development", "Information Technology", 3));
+            courseService.addCourse(new Course("C001", "Integrative Programming", "Information Technology", 3));
+            courseService.addCourse(new Course("C002", "Data Structures", "Information Technology", 3));
+            courseService.addCourse(new Course("C003", "Web Development", "Information Technology", 3));
 
-        Instructor lopez = new Instructor("I001", "Dr. Lopez", "Computer Studies");
-        Instructor santos = new Instructor("I002", "Prof. Santos", "Computer Studies");
-        instructorService.addInstructor(lopez);
-        instructorService.addInstructor(santos);
-        instructorService.assignInstructorToSection(lopez, bsit1A);
+            Instructor lopez = new Instructor("I001", "Dr. Lopez", "Computer Studies");
+            Instructor santos = new Instructor("I002", "Prof. Santos", "Computer Studies");
+            instructorService.addInstructor(lopez);
+            instructorService.addInstructor(santos);
+            instructorService.assignInstructorToSection(lopez, bsit1A);
 
-        studentService.addStudent(new Student("S001", "John Doe", "Information Technology"));
-        studentService.addStudent(new Student("S002", "Jane Smith", "Information Technology"));
+            studentService.addStudent(new Student("S001", "Juan", "Information Technology"));
+            studentService.addStudent(new Student("S002", "Maria", "Information Technology"));
+        } catch (DuplicateIdException e) {
+            System.out.println("Error seeding data: " + e.getMessage());
+        }
     }
 
     private static void runMainMenu() {
@@ -108,8 +112,12 @@ public class Main {
                     String id = readString("Enter Student ID: ");
                     String name = readString("Enter Student Name: ");
                     String program = readString("Enter Program: ");
-                    studentService.addStudent(new Student(id, name, program));
-                    System.out.println("Student added.");
+                    try {
+                        studentService.addStudent(new Student(id, name, program));
+                        System.out.println("Student added.");
+                    } catch (DuplicateIdException e) {
+                        System.out.println("ERROR: " + e.getMessage());
+                    }
                     break;
                 case "2":
                     ArrayList<Student> students = studentService.getAllStudents();
@@ -160,8 +168,12 @@ public class Main {
                     String id = readString("Enter Instructor ID: ");
                     String name = readString("Enter Instructor Name: ");
                     String department = readString("Enter Department: ");
-                    instructorService.addInstructor(new Instructor(id, name, department));
-                    System.out.println("Instructor added.");
+                    try {
+                        instructorService.addInstructor(new Instructor(id, name, department));
+                        System.out.println("Instructor added.");
+                    } catch (DuplicateIdException e) {
+                        System.out.println("ERROR: " + e.getMessage());
+                    }
                     break;
                 case "2":
                     ArrayList<Instructor> instructors = instructorService.getAllInstructors();
@@ -238,8 +250,12 @@ public class Main {
                     String name = readString("Enter Course Name: ");
                     String program = readString("Enter Program: ");
                     int units = readInt("Enter Units: ");
-                    courseService.addCourse(new Course(id, name, program, units));
-                    System.out.println("Course added.");
+                    try {
+                        courseService.addCourse(new Course(id, name, program, units));
+                        System.out.println("Course added.");
+                    } catch (DuplicateIdException e) {
+                        System.out.println("ERROR: " + e.getMessage());
+                    }
                     break;
                 case "2":
                     ArrayList<Course> courses = courseService.getAllCourses();

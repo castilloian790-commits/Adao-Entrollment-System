@@ -4,7 +4,7 @@ import entities.Student;
 import services.IStudentService;
 
 import java.util.ArrayList;
-
+import exceptions.DuplicateIdException;
 public class StudentServiceImpl implements IStudentService {
     private ArrayList<Student> studentList;
 
@@ -13,7 +13,14 @@ public class StudentServiceImpl implements IStudentService {
     }
 
     @Override
-    public void addStudent(Student student) {
+    public void addStudent(Student student) throws DuplicateIdException {
+        for (Student existing : studentList) {
+            if (existing.getPersonId().equals(student.getPersonId())) {
+                throw new DuplicateIdException(
+                        "Cannot add student: ID '" + student.getPersonId() + "' already exists."
+                );
+            }
+        }
         studentList.add(student);
     }
 

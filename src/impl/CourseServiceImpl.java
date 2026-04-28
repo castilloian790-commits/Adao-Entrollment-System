@@ -4,7 +4,7 @@ import entities.Course;
 import services.ICourseService;
 
 import java.util.ArrayList;
-
+import exceptions.DuplicateIdException;
 public class CourseServiceImpl implements ICourseService {
     private ArrayList<Course> courseList;
 
@@ -13,10 +13,16 @@ public class CourseServiceImpl implements ICourseService {
     }
 
     @Override
-    public void addCourse(Course course) {
+    public void addCourse(Course course) throws DuplicateIdException {
+        for (Course existing : courseList) {
+            if (existing.getCourseId().equals(course.getCourseId())) {
+                throw new DuplicateIdException(
+                        "Cannot add course: ID '" + course.getCourseId() + "' already exists."
+                );
+            }
+        }
         courseList.add(course);
     }
-
     @Override
     public void updateCourse(String courseId, Course updatedCourse) {
         for (int i = 0; i < courseList.size(); i++) {
